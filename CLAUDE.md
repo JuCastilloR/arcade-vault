@@ -2,18 +2,13 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Skills
+
+Usa siempre /frontend-design para diseñar la interfaz de usuario.
+
 ## Proyecto
 
 Arcade Vault: plataforma para jugar online y competir por la mayor cantidad de puntos. El repo es todavía el scaffold de Create Next App (solo `app/layout.tsx` y `app/page.tsx`). El README indica que se trabaja con Spec Driven Design (`/spec` y `/spec-impl`) usando los skills de `Klerith/fernando-skills`.
-
-## Comandos
-
-```bash
-npm run dev     # servidor de desarrollo (next dev)
-npm run build   # build de producción
-npm run start   # servir el build
-npm run lint    # eslint (flat config en eslint.config.mjs)
-```
 
 No hay framework de tests configurado todavía.
 
