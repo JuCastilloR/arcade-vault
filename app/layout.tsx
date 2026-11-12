@@ -27,7 +27,7 @@ const courierPrime = Courier_Prime({
 });
 
 export const metadata: Metadata = {
-  title: "Arcade Vault",
+  title: { default: "Arcade Vault", template: "%s · Arcade Vault" },
   description: "Juega online y compite por la mayor cantidad de puntos.",
 };
 
@@ -40,11 +40,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <div className="av-bg" />
         <div className="av-noise" />
-        <SessionProvider>
-          <Nav />
-          <main className="av-main">{children}</main>
-          <Footer />
-        </SessionProvider>
+        {/* #root: el CSS lo usa para apilar el contenido (z-index 2) sobre av-bg/av-noise */}
+        <div id="root">
+          <SessionProvider>
+            <Nav />
+            <main className="av-main">{children}</main>
+            <Footer />
+          </SessionProvider>
+        </div>
       </body>
     </html>
   );

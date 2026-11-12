@@ -1,9 +1,23 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GAMES, seededScores } from "@/lib/data";
 
+// Ruta bloqueante: mantiene el 404 real para ids inexistentes (con Suspense el
+// notFound() llegaría con el stream ya iniciado y respondería 200).
+export const instant = false;
+
 export function generateStaticParams() {
   return GAMES.map((g) => ({ id: g.id }));
+}
+
+export async function generateMetadata({
+  params,
+}: PageProps<"/juegos/[id]">): Promise<Metadata> {
+  const { id } = await params;
+  const game = GAMES.find((g) => g.id === id);
+  if (!game) return {};
+  return { title: game.title, description: game.short };
 }
 
 export default async function GameDetailPage({

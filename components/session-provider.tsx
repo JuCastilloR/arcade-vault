@@ -18,7 +18,7 @@ interface SessionContextValue {
   user: SessionUser | null;
   login: (name: string) => void;
   signOut: () => void;
-  saveScore: (game: string, score: number) => void;
+  saveScore: (game: string, score: number, name?: string) => void;
 }
 
 const SessionContext = createContext<SessionContextValue | null>(null);
@@ -72,7 +72,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const saveScore = useCallback(
-    (game: string, score: number) => {
+    (game: string, score: number, name?: string) => {
       try {
         const raw = localStorage.getItem(SCORES_KEY);
         const parsed: unknown = raw ? JSON.parse(raw) : [];
@@ -80,7 +80,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         list.push({
           game,
           score,
-          name: user?.name ?? "INVITADO",
+          name: name || user?.name || "INVITADO",
           at: Date.now(),
         });
         localStorage.setItem(SCORES_KEY, JSON.stringify(list));
