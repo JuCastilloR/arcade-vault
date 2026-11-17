@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { GamePlayer } from "@/components/game-player";
 import { GAMES } from "@/lib/data";
 
-// Ruta bloqueante: mantiene el 404 real para ids inexistentes (con Suspense el
-// notFound() llegaría con el stream ya iniciado y respondería 200).
+// Ruta bloqueante (sin Suspense). Aun así el shell de PPR se envía antes de
+// notFound(), así que el 404 real para ids inexistentes lo garantiza proxy.ts.
 export const instant = false;
 
 export function generateStaticParams() {
@@ -13,7 +13,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({
   params,
-}: PageProps<"/jugar/[id]">): Promise<Metadata> {
+}: PageProps<"/games/[id]/play">): Promise<Metadata> {
   const { id } = await params;
   const game = GAMES.find((g) => g.id === id);
   if (!game) return {};
@@ -23,7 +23,7 @@ export async function generateMetadata({
   };
 }
 
-export default async function PlayPage({ params }: PageProps<"/jugar/[id]">) {
+export default async function PlayPage({ params }: PageProps<"/games/[id]/play">) {
   const { id } = await params;
   const game = GAMES.find((g) => g.id === id);
   if (!game) notFound();

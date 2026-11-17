@@ -3,8 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GAMES, seededScores } from "@/lib/data";
 
-// Ruta bloqueante: mantiene el 404 real para ids inexistentes (con Suspense el
-// notFound() llegaría con el stream ya iniciado y respondería 200).
+// Ruta bloqueante (sin Suspense). Aun así el shell de PPR se envía antes de
+// notFound(), así que el 404 real para ids inexistentes lo garantiza proxy.ts.
 export const instant = false;
 
 export function generateStaticParams() {
@@ -13,7 +13,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({
   params,
-}: PageProps<"/juegos/[id]">): Promise<Metadata> {
+}: PageProps<"/games/[id]">): Promise<Metadata> {
   const { id } = await params;
   const game = GAMES.find((g) => g.id === id);
   if (!game) return {};
@@ -22,7 +22,7 @@ export async function generateMetadata({
 
 export default async function GameDetailPage({
   params,
-}: PageProps<"/juegos/[id]">) {
+}: PageProps<"/games/[id]">) {
   const { id } = await params;
   const game = GAMES.find((g) => g.id === id);
   if (!game) notFound();
@@ -75,10 +75,10 @@ export default async function GameDetailPage({
             </div>
           </div>
           <div className="detail-actions">
-            <Link href={`/jugar/${game.id}`} className="btn xl pulse">
+            <Link href={`/games/${game.id}/play`} className="btn xl pulse">
               ▶ JUGAR AHORA
             </Link>
-            <Link href="/" className="btn ghost lg">
+            <Link href="/games" className="btn ghost lg">
               VOLVER AL VAULT
             </Link>
           </div>
