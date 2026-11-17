@@ -5,17 +5,30 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "@/components/session-provider";
 
+interface NavLink {
+  href: string;
+  label: string;
+  match: (pathname: string) => boolean;
+}
+
+const LINKS: NavLink[] = [
+  { href: "/", label: "Inicio", match: (p) => p === "/" },
+  {
+    href: "/games",
+    label: "Biblioteca",
+    match: (p) => p === "/games" || p.startsWith("/games/"),
+  },
+  { href: "/salon", label: "Salón de la Fama", match: (p) => p === "/salon" },
+  { href: "/about", label: "Acerca de", match: (p) => p === "/about" },
+];
+
 export function Nav() {
   const pathname = usePathname();
   const { user, signOut } = useSession();
   const [open, setOpen] = useState(false);
 
-  const isBiblioteca =
-    pathname === "/" ||
-    pathname.startsWith("/juegos/") ||
-    pathname.startsWith("/jugar/");
-  const isSalon = pathname === "/salon";
   const isAuth = pathname === "/auth";
+  const isActive = (link: NavLink) => link.match(pathname);
 
   const close = () => setOpen(false);
 
@@ -29,12 +42,11 @@ export function Nav() {
           </div>
         </Link>
         <div className="links">
-          <Link href="/" className={isBiblioteca ? "active" : ""}>
-            Biblioteca
-          </Link>
-          <Link href="/salon" className={isSalon ? "active" : ""}>
-            Salón de la Fama
-          </Link>
+          {LINKS.map((l) => (
+            <Link key={l.href} href={l.href} className={isActive(l) ? "active" : ""}>
+              {l.label}
+            </Link>
+          ))}
         </div>
         <div className="spacer"></div>
         <div className="coin-counter">
@@ -70,12 +82,16 @@ export function Nav() {
         >
           MENÚ
         </div>
-        <Link href="/" className={isBiblioteca ? "active" : ""} onClick={close}>
-          Biblioteca
-        </Link>
-        <Link href="/salon" className={isSalon ? "active" : ""} onClick={close}>
-          Salón de la Fama
-        </Link>
+        {LINKS.map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            className={isActive(l) ? "active" : ""}
+            onClick={close}
+          >
+            {l.label}
+          </Link>
+        ))}
         <Link href="/auth" className={isAuth ? "active" : ""} onClick={close}>
           {user ? "Cuenta" : "Iniciar Sesión"}
         </Link>
