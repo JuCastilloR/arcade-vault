@@ -1,6 +1,6 @@
 # SPEC 02 — Home y Acerca de, con rutas unificadas bajo /games
 
-> **Status:** Approved
+> **Status:** Implemented
 > **Depends on:** SPEC 01
 > **Date:** 2026-11-17
 > **Objective:** Portar a Next.js el Home (landing) y la pantalla Acerca de + Contacto de `resources/templates/home-about/`, mover la Biblioteca a `/games` y unificar todas las rutas de juegos bajo `/games`.

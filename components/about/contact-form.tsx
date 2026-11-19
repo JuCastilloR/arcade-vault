@@ -1,31 +1,62 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { validateContact } from "@/lib/contact";
 
-const EMPTY = { name: "", email: "", msg: "" };
+const EMPTY = { name: "", email: "", msg: "", website: "" };
 
-/** Formulario simulado: valida campos vacíos y muestra una terminal de éxito. No envía nada. */
+// Honeypot: fuera de pantalla, sin ocupar espacio ni afectar al diseño.
+const HONEYPOT_STYLE = {
+  position: "absolute",
+  left: "-9999px",
+  width: 1,
+  height: 1,
+  overflow: "hidden",
+} as const;
+
+/** Formulario de contacto: valida en cliente y envía a `POST /api/contact`. */
 export function ContactForm() {
   const [form, setForm] = useState(EMPTY);
   const [sent, setSent] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
   const shakeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => () => clearTimeout(shakeTimer.current), []);
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.email.trim() || !form.msg.trim()) {
+    if (sending) return;
+    setError(false);
+    if (validateContact(form).length > 0) {
       clearTimeout(shakeTimer.current);
       setShake(true);
       shakeTimer.current = setTimeout(() => setShake(false), 400);
       return;
     }
-    setSent(form.name.trim());
+    setSending(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (res.status === 200) {
+        setSent(form.name.trim());
+      } else {
+        setError(true);
+      }
+    } catch {
+      setError(true);
+    } finally {
+      setSending(false);
+    }
   };
 
   const reset = () => {
     setSent(null);
+    setError(false);
     setForm(EMPTY);
   };
 
@@ -71,8 +102,29 @@ export function ContactForm() {
               placeholder="Cuéntanos qué tienes en mente…"
             ></textarea>
           </div>
-          <button className="btn xl press" type="submit" style={{ width: "100%" }}>
-            ▶ ENVIAR MENSAJE
+          <div style={HONEYPOT_STYLE} aria-hidden="true">
+            <label htmlFor="contact-website">SITIO WEB</label>
+            <input
+              id="contact-website"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              value={form.website}
+              onChange={(e) => setForm({ ...form, website: e.target.value })}
+            />
+          </div>
+          {error && (
+            <div className="form-error" role="alert">
+              &gt; ERROR: no se pudo enviar el mensaje. Revisa tu conexión e inténtalo de nuevo.
+            </div>
+          )}
+          <button
+            className="btn xl press"
+            type="submit"
+            style={{ width: "100%" }}
+            disabled={sending}
+          >
+            {sending ? "ENVIANDO…" : "▶ ENVIAR MENSAJE"}
           </button>
         </>
       ) : (
